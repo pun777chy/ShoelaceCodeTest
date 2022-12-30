@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: -3961684387290482258}
   - component: {fileID: 3100758556307256874}
   m_Layer: 0
-  m_Name: Normal_Blue
+  m_Name: NormalPiece
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

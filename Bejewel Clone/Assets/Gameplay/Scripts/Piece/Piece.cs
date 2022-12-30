@@ -4,6 +4,7 @@ namespace Shoelace.Piece
 {
     public enum PieceType
     {
+        Empty,
         Normal,
         Count,
     }

@@ -10,7 +10,8 @@ namespace Shoelace.Piece
         Orange,
         Pink,
         Red,
-        Yellow
+        Yellow,
+        Count
     }
     public class ColorPiece : MonoBehaviour
     {
