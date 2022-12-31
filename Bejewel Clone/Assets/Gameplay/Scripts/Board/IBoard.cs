@@ -14,5 +14,7 @@ namespace Shoelace.Board
         public void PressPiece(MainPiece piece);
         public void EnterPiece(MainPiece piece);
         public void ReleasePiece();
+        public bool ClearPiece(int x, int y);
+        public bool ClearAllValidMatches();
     }
 }

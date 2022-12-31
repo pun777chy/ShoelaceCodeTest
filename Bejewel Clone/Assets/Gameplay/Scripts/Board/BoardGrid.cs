@@ -195,12 +195,13 @@ namespace Shoelace.Board
 
                     piece1.MovablePiece.Move(piece2.X, piece2.Y, fillTime);
                     piece2.MovablePiece.Move(piece1X, piece1Y, fillTime);
+                  //  ClearAllValidMatches();
                 }
-              else 
-              {
+                else 
+                {
                     pieces[piece1.X, piece1.Y] = piece1;
                     pieces[piece2.X, piece2.Y] = piece2;
-              }
+                }
             }
         }
         public void PressPiece(MainPiece piece)
@@ -409,6 +410,44 @@ namespace Shoelace.Board
             }
             return null;
         }
+        public bool ClearAllValidMatches()
+        {
+            bool needsRefill = false;
+
+            for (int j = 0; j < yDimension; j++)
+            {
+                for (int i = 0; i < xDimension; i++)
+                {
+                    if(pieces[i,j].IsClearable())
+                    {
+                        List<MainPiece> match = GetMatch(pieces[i, j], i, j);
+                        if(match != null)
+                        {
+                            for (int x = 0; x < match.Count; x++)
+                            {
+                                if(ClearPiece(match[i].X, match[i].Y))
+                                {
+                                    needsRefill = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return needsRefill;
+        }
+        public bool ClearPiece(int x, int y)
+        {
+            if(pieces[x, y].IsClearable() && !pieces[x, y].ClearablePiece.IsBeingCleared)
+            {
+                pieces[x, y].ClearablePiece.Clear();
+                SpawnPiece(x, y, PieceType.Empty);
+                return true;
+            }
+            return false;
+
+        }
+
     }
     
 }

@@ -78,10 +78,19 @@ namespace Shoelace.Piece
                 return colorPiece;
             }
         }
+        private ClearablePiece clearablePiece;
+        public ClearablePiece ClearablePiece
+        {
+            get
+            {
+                return clearablePiece;
+            }
+        }
         private void Awake()
         {
             movablePiece = GetComponent<MovablePiece>();
             colorPiece = GetComponent<ColorPiece>();
+            clearablePiece = GetComponent<ClearablePiece>();
         }
     
 
@@ -113,6 +122,10 @@ namespace Shoelace.Piece
         public bool IsColored()
         {
             return colorPiece != null;
+        }
+        public bool IsClearable()
+        {
+            return clearablePiece != null;
         }
     }
 }

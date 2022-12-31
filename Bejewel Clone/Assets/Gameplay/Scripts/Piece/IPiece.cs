@@ -19,6 +19,7 @@ namespace Shoelace.Piece
         public abstract void Init(int _x, int _y, IBoard _board, PieceType _type);
         public bool IsMovable();
         public bool IsColored();
+        public bool IsClearable();
         public MovablePiece MovablePiece
         {
             get;
