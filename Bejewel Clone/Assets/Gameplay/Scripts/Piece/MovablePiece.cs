@@ -8,11 +8,11 @@ namespace Shoelace.Piece
 {
     public class MovablePiece : MonoBehaviour
     {
-        private Piece piece;
+        private MainPiece piece;
         private IEnumerator moveCoroutine;
         private void Awake()
         {
-            piece = GetComponent<Piece>();
+            piece = GetComponent<MainPiece>();
         }
 
         public void Move(int newX, int newY, float time)

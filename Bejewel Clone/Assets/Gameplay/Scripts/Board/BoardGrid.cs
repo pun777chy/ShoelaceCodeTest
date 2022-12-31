@@ -4,19 +4,20 @@ using UnityEngine;
 using Shoelace.Piece;
 namespace Shoelace.Board
 {
-    public class Board : MonoBehaviour,IBoard
+    public class BoardGrid : MonoBehaviour,IBoard
     {
 
         public int xDimension;
         public int yDimension;
         public float fillTime;
-        public Piece.Piece.PiecePrefab[] piecePrefabs;
+        public MainPiece.PiecePrefab[] piecePrefabs;
         public GameObject backGroundPrefab;
         private Dictionary<PieceType, GameObject> pieceDict; // dictionary collection for piece prefab
-        private Piece.Piece[,] pieces;
+        private MainPiece[,] pieces;
         private bool inverse;
-       
-        
+
+        private MainPiece pressedPiece;
+        private MainPiece enteredPiece;
 
         // Start is called before the first frame update
         void Start()
@@ -52,7 +53,7 @@ namespace Shoelace.Board
         }
         private void PopulateTheGridBoardWithPieces()
         {
-            pieces = new Piece.Piece[xDimension, yDimension];
+            pieces = new MainPiece[xDimension, yDimension];
             for (int i = 0; i < xDimension; i++)
             {
                 for (int j = 0; j < yDimension; j++)
@@ -66,12 +67,12 @@ namespace Shoelace.Board
             //return new Vector2(transform.position.x - xDimension/2.0f + x, transform.position.y - yDimension / 2.0f + y);
             return new Vector2(transform.position.x + xDimension / 2.0f - x, transform.position.y + yDimension / 2.0f - y);
         }
-        public Piece.Piece SpawnPiece(int x, int y, PieceType type)
+        public MainPiece SpawnPiece(int x, int y, PieceType type)
         {
             GameObject newPiece = (GameObject)Instantiate(pieceDict[type], GetWworldPositionForPieces(x, y), Quaternion.identity);
             newPiece.transform.parent = transform;
             newPiece.name = type.ToString() + "(" + x + "," + y + ")";
-            pieces[x, y] = newPiece.GetComponent<Piece.Piece>();
+            pieces[x, y] = newPiece.GetComponent<MainPiece>();
             pieces[x, y].Init(x, y, this, type);
             return pieces[x, y];
         }
@@ -96,10 +97,10 @@ namespace Shoelace.Board
                         i = xDimension - 1 - loopX;
 
                     }
-                    Piece.Piece piece = pieces[i, j];
+                    MainPiece piece = pieces[i, j];
                     if(piece.IsMovable())
                     {
-                        Piece.Piece pieceBelow = pieces[i, j + 1];
+                        MainPiece pieceBelow = pieces[i, j + 1];
                         if(pieceBelow.Type == PieceType.Empty)
                         {
                             Destroy(pieceBelow.gameObject);
@@ -125,13 +126,13 @@ namespace Shoelace.Board
                                     }
                                     if(diagX>=0 && diagX < xDimension)
                                     {
-                                        Piece.Piece diagonalPiece = pieces[diagX, j + 1];
+                                        MainPiece diagonalPiece = pieces[diagX, j + 1];
                                         if(diagonalPiece.Type == PieceType.Empty)
                                         {
                                             bool hasPieceAbove = true;
                                             for (int aboveY = j; aboveY >= 0; aboveY--)
                                             {
-                                                Piece.Piece pieceAbove = pieces[diagX,aboveY];
+                                                MainPiece pieceAbove = pieces[diagX,aboveY];
                                                 if(pieceAbove.IsMovable())
                                                 {
                                                     break;
@@ -167,14 +168,14 @@ namespace Shoelace.Board
             }
             for (int i = 0; i < xDimension; i++)
             {
-                Piece.Piece pieceBelow = pieces[i, 0];
+                MainPiece pieceBelow = pieces[i, 0];
                 if(pieceBelow.Type == PieceType.Empty)
                 {
                     Destroy(pieceBelow.gameObject);
                     GameObject newPiece = (GameObject)Instantiate(pieceDict[PieceType.Normal], GetWworldPositionForPieces(i, -1), Quaternion.identity);
                     newPiece.transform.parent = transform;
                     newPiece.name = PieceType.Normal + "(" + i + "," + 0 + ")";
-                    pieces[i, 0] = newPiece.GetComponent<Piece.Piece>();
+                    pieces[i, 0] = newPiece.GetComponent<MainPiece>();
                     pieces[i, 0].Init(i, -1, this, PieceType.Normal);
                     pieces[i, 0].MovablePiece.Move(i, 0,fillTime);
                     pieces[i, 0].ColorPiece.SetColor((ColorType)Random.Range(0, (int)ColorType.Count));
@@ -183,5 +184,39 @@ namespace Shoelace.Board
             }
             return movedPiece;
         }
+        public bool IsAdjacent(MainPiece piece1, MainPiece piece2)
+        {
+            return (piece1.X == piece2.X && (int)Mathf.Abs(piece1.Y - piece2.Y) == 1)
+                || (piece1.Y == piece2.Y && (int)Mathf.Abs(piece1.X - piece2.X) == 1);
+        }
+        public void SwapPieces(MainPiece piece1, MainPiece piece2)
+        {
+            if(piece1.IsMovable() && piece2.IsMovable())
+            {
+                pieces[piece1.X, piece2.Y] = piece2;
+                pieces[piece2.X, piece1.Y] = piece1;
+                int piece1X = piece1.X;
+                int piece1Y = piece1.Y;
+
+                piece1.MovablePiece.Move(piece2.X, piece2.Y, fillTime);
+                piece2.MovablePiece.Move(piece1.X, piece1.Y, fillTime);
+            }
+        }
+        public void PressPiece(MainPiece piece)
+        {
+            pressedPiece = piece;
+        }
+        public void EnterPiece(MainPiece piece)
+        {
+            enteredPiece = piece; 
+        }
+        public void ReleasePiece()
+        {
+            if(IsAdjacent(pressedPiece,enteredPiece))
+            {
+                SwapPieces(pressedPiece, enteredPiece);
+            }
+        }
     }
+    
 }

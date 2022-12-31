@@ -9,7 +9,7 @@ namespace Shoelace.Piece
         Brick,
         Count,
     }
-    public class Piece : MonoBehaviour,IPiece
+    public class MainPiece : MonoBehaviour,IPiece
     {
         [System.Serializable]
         public struct PiecePrefab
@@ -83,10 +83,7 @@ namespace Shoelace.Piece
             movablePiece = GetComponent<MovablePiece>();
             colorPiece = GetComponent<ColorPiece>();
         }
-        private void Start()
-        {
-            
-        }
+    
 
         public void Init(int _x, int _y, IBoard _board, PieceType _type)
         {
@@ -96,6 +93,18 @@ namespace Shoelace.Piece
             board = _board;
             type = _type;
             
+        }
+        private void OnMouseEnter()
+        {
+            boardRef.EnterPiece(this);
+        }
+        private void OnMouseDown()
+        {
+            boardRef.PressPiece(this);
+        }
+        private void OnMouseUp()
+        {
+            boardRef.ReleasePiece();
         }
         public bool IsMovable()
         {
