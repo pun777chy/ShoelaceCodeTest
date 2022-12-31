@@ -105,10 +105,7 @@ namespace Shoelace.Board
                         {
                             Destroy(pieceBelow.gameObject);
                             piece.MovablePiece.Move(i, j + 1,fillTime);
-                            if (piece.IsColored())
-                            {
-                                piece.ColorPiece.Sprite.sortingOrder = j + 1;
-                            }
+                          
                             pieces[i, j + 1] = piece;
                             SpawnPiece(i, j, PieceType.Empty);
                             movedPiece = true;
@@ -148,16 +145,12 @@ namespace Shoelace.Board
                                                 
                                                 Destroy(diagonalPiece.gameObject);
                                                 piece.MovablePiece.Move(diagX, j + 1, fillTime);
-                                                if (piece.IsColored())
-                                                {
-                                                    piece.ColorPiece.Sprite.sortingOrder = j + 1;
-                                                }
+                                               
                                                 pieces[diagX, j + 1] = piece;
                                                 SpawnPiece(i, j, PieceType.Empty);
                                                 movedPiece = true;
                                                 break;
                                             }
-                                           
                                         }
                                     }
                                 }
@@ -195,11 +188,19 @@ namespace Shoelace.Board
             {
                 pieces[piece1.X, piece2.Y] = piece2;
                 pieces[piece2.X, piece1.Y] = piece1;
-                int piece1X = piece1.X;
-                int piece1Y = piece1.Y;
+                if(GetMatch(piece1,piece2.X,piece2.Y) != null|| GetMatch(piece2,piece1.X,piece1.Y) !=null)
+                {
+                    int piece1X = piece1.X;
+                    int piece1Y = piece1.Y;
 
-                piece1.MovablePiece.Move(piece2.X, piece2.Y, fillTime);
-                piece2.MovablePiece.Move(piece1.X, piece1.Y, fillTime);
+                    piece1.MovablePiece.Move(piece2.X, piece2.Y, fillTime);
+                    piece2.MovablePiece.Move(piece1X, piece1Y, fillTime);
+                }
+              else 
+              {
+                    pieces[piece1.X, piece1.Y] = piece1;
+                    pieces[piece2.X, piece2.Y] = piece2;
+              }
             }
         }
         public void PressPiece(MainPiece piece)
@@ -216,6 +217,197 @@ namespace Shoelace.Board
             {
                 SwapPieces(pressedPiece, enteredPiece);
             }
+        }
+        public List<MainPiece> GetMatch(MainPiece piece, int newX, int newY)
+        {
+            if(piece.IsColored())
+            {
+                ColorType colorType = piece.ColorPiece.Color;
+                List<MainPiece> horizontalPieces = new List<MainPiece>();
+                List<MainPiece> verticalPieces = new List<MainPiece>();
+                List<MainPiece> matchPieces = new List<MainPiece>();
+
+                // We will first check horizontally
+                horizontalPieces.Add(piece);
+                for (int dir = 0; dir <= 1; dir++)
+                {
+                    for (int xOffset = 1; xOffset < xDimension; xOffset++)
+                    {
+                        int x;
+                        if(dir == 0) // left side
+                        {
+                            x = newX - xOffset;
+                        }
+                        else // right side
+                        {
+                            x = newX + xOffset;
+                        }
+                        if(x < 0 || x >= xDimension)
+                        {
+                            break;
+                        }
+                        if(pieces[x, newY].IsColored() && pieces[x, newY].ColorPiece.Color == colorType)
+                        {
+                            horizontalPieces.Add(pieces[x, newY]);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+                if(horizontalPieces.Count >= 3)
+                {
+                    for (int i = 0; i < horizontalPieces.Count; i++)
+                    {
+                        matchPieces.Add(horizontalPieces[i]);
+                    }
+                }
+                // traverse vertically if we found L or T shape
+                if(horizontalPieces.Count>=3)
+                {
+                    for (int i = 0; i < horizontalPieces.Count; i++)
+                    {
+                        for (int dir = 0; dir <= 1; dir++)
+                        {
+                            for (int yOffset = 1; yOffset < yDimension; yOffset++)
+                            {
+                                int y;
+                                if (dir == 0) // upward
+                                {
+                                    y = newY - yOffset;
+                                }
+                                else // downward
+                                {
+                                    y = newY + yOffset;
+                                }
+                                if (y < 0 || y >= yDimension)
+                                {
+                                    break;
+                                }
+                                if (pieces[horizontalPieces[i].X,y].IsColored() && pieces[horizontalPieces[i].X, y].ColorPiece.Color == colorType)
+                                {
+                                    verticalPieces.Add(pieces[horizontalPieces[i].X, y]);
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        if(verticalPieces.Count<2)
+                        {
+                            verticalPieces.Clear();
+                        }
+                        else
+                        {
+                            for (int j = 0; j < verticalPieces.Count; j++)
+                            {
+                                matchPieces.Add(verticalPieces[j]);
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                if(matchPieces.Count >= 3)
+                {
+                    return matchPieces;
+                }
+                horizontalPieces.Clear();
+                verticalPieces.Clear();
+                // Now we will first check vertically
+                verticalPieces.Add(piece);
+                for (int dir = 0; dir <= 1; dir++)
+                {
+                    for (int yOffset = 1; yOffset < yDimension; yOffset++)
+                    {
+                        int y;
+                        if (dir == 0) // Upward
+                        {
+                            y = newY - yOffset;
+                        }
+                        else  // downward 
+                        {
+                            y = newY + yOffset;
+                        }
+                        if (y < 0 || y >= yDimension)
+                        {
+                            break;
+                        }
+                        if (pieces[newX, y].IsColored() && pieces[newX, y].ColorPiece.Color == colorType)
+                        {
+                            verticalPieces.Add(pieces[newX, y]);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                if (verticalPieces.Count >= 3)
+                {
+                    for (int i = 0; i < verticalPieces.Count; i++)
+                    {
+                        matchPieces.Add(verticalPieces[i]);
+                    }
+                }
+
+                // traverse horizontally if we found L or T shape
+                if (verticalPieces.Count >= 3)
+                {
+                    for (int i = 0; i < verticalPieces.Count; i++)
+                    {
+                        for (int dir = 0; dir <= 1; dir++)
+                        {
+                            for (int xOffset = 1; xOffset < xDimension; xOffset++)
+                            {
+                                int x;
+                                if (dir == 0) // left
+                                {
+                                    x = newX - xOffset;
+                                }
+                                else // right
+                                {
+                                    x = newY + xOffset;
+                                }
+                                if (x < 0 || x >= xDimension)
+                                {
+                                    break;
+                                }
+                                if (pieces[x, verticalPieces[i].Y].IsColored() && pieces[x, verticalPieces[i].Y].ColorPiece.Color == colorType)
+                                {
+                                    verticalPieces.Add(pieces[x, verticalPieces[i].Y]);
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        if (horizontalPieces.Count < 2)
+                        {
+                            horizontalPieces.Clear();
+                        }
+                        else
+                        {
+                            for (int j = 0; j < horizontalPieces.Count; j++)
+                            {
+                                matchPieces.Add(horizontalPieces[j]);
+                            }
+                            break;
+                        }
+                    }
+                }
+                //
+                if (matchPieces.Count >= 3)
+                {
+                    return matchPieces;
+                }
+
+            }
+            return null;
         }
     }
     

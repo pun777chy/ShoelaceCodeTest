@@ -31,8 +31,8 @@ namespace Shoelace.Piece
         {
             piece.X = newX;
             piece.Y = newY;
-          
-            Vector3 startPos = transform.position;
+            piece.ColorPiece.SetTheSortingLayerOfColoredPiece(newY);
+             Vector3 startPos = transform.position;
             Vector3 endPos = piece.boardRef.GetWworldPositionForPieces(newX,newY);
             for (float t = 0; t <= 1*time; t += Time.deltaTime)
             {
@@ -41,5 +41,6 @@ namespace Shoelace.Piece
             }
             piece.transform.position = endPos;
         }
+       
     }
 }

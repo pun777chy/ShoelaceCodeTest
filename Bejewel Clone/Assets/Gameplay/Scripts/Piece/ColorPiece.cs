@@ -70,5 +70,9 @@ namespace Shoelace.Piece
                 sprite.sprite = colorSpriteDict[newColor];
             }
         }
+        public void SetTheSortingLayerOfColoredPiece(int order)
+        {
+            Sprite.sortingOrder = order;
+        }
     }
 }
