@@ -36,6 +36,13 @@ namespace Shoelace.Piece
             }
         }
         private SpriteRenderer sprite;
+        public SpriteRenderer Sprite
+        {
+            get
+            {
+                return sprite;
+            }
+        }
         private Dictionary<ColorType, Sprite> colorSpriteDict;
         private void Awake()
         {

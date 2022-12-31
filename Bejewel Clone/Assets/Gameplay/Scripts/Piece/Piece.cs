@@ -6,6 +6,7 @@ namespace Shoelace.Piece
     {
         Empty,
         Normal,
+        Brick,
         Count,
     }
     public class Piece : MonoBehaviour,IPiece
@@ -89,10 +90,12 @@ namespace Shoelace.Piece
 
         public void Init(int _x, int _y, IBoard _board, PieceType _type)
         {
+           
             x = _x;
             y = _y;
             board = _board;
             type = _type;
+            
         }
         public bool IsMovable()
         {

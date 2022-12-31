@@ -8,7 +8,7 @@ namespace Shoelace.Board
     {
         public Vector2 GetWworldPositionForPieces(int x, int y);
         public Piece.Piece SpawnPiece(int x, int y, PieceType type);
-        public void Fill();
+        public IEnumerator Fill();
         public bool FillStep();
     }
 }

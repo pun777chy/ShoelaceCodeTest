@@ -236,13 +236,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e673b0eed26b4e4896a0e637b6c6340, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xDimension: 9
-  yDimension: 9
+  xDimension: 8
+  yDimension: 8
+  fillTime: 0.1
   piecePrefabs:
   - type: 0
     prefab: {fileID: 355189311473101201, guid: db09aafee104c1b4c949a3b9ae7d7dd1, type: 3}
   - type: 1
     prefab: {fileID: 355189311473101201, guid: 462d758ec95297741a95b0106d607361, type: 3}
+  - type: 2
+    prefab: {fileID: 7139031453784546044, guid: 0b01dff399c9cbb4b906dc4fc07f8188, type: 3}
   backGroundPrefab: {fileID: 355189311473101201, guid: 4a745df035d0c3944af1a1521e985abe, type: 3}
 --- !u!4 &646973733
 Transform:
