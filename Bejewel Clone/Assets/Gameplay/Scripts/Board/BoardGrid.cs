@@ -199,7 +199,7 @@ namespace Shoelace.Board
                 pieces[piece2.X, piece1.Y] = piece1;
                 //if (GetMatch(piece1, piece2.X, piece2.Y) != null || GetMatch(piece2, piece1.X, piece1.Y) != null)
                 //{
-                if (FindMatches(piece1, piece2) != null)
+                if (FindMatches() != null)
                 {
                     int piece1X = piece1.X;
                     int piece1Y = piece1.Y;
@@ -220,62 +220,7 @@ namespace Shoelace.Board
             }
            
         }
-        //public void FindMatches(MainPiece piece1, MainPiece piece2)
-        //{
-        //    if(piece1.X > 0 && piece1.X < xDimension-1)
-        //    {
-        //        MainPiece leftPiece = pieces[piece1.X - 1, piece1.Y];
-        //        MainPiece rightPiece = pieces[piece1.X + 1, piece1.Y];
-        //        if(leftPiece.ColorPiece.Color == piece1.ColorPiece.Color && rightPiece.ColorPiece.Color == piece1.ColorPiece.Color)
-        //        {
-        //            if(piece1.IsClearable())
-        //                 piece1.ClearablePiece.Clear();
-        //            if(leftPiece.IsClearable())
-        //                 leftPiece.ClearablePiece.Clear();
-        //            if (rightPiece.IsClearable())
-        //                rightPiece.ClearablePiece.Clear();
-        //        }
-        //    }
-        //    if (piece1.Y > 0 && piece1.Y < yDimension - 1)
-        //    {
-        //        MainPiece upPiece = pieces[piece1.X, piece1.Y - 1];
-        //        MainPiece downPiece = pieces[piece1.X, piece1.Y - 1];
-        //        if (upPiece.ColorPiece.Color == piece1.ColorPiece.Color && downPiece.ColorPiece.Color == piece1.ColorPiece.Color)
-        //        {
-        //            if (piece1.IsClearable())
-        //                piece1.ClearablePiece.Clear();
-        //            if (upPiece.IsClearable())
-        //                upPiece.ClearablePiece.Clear();
-        //            if (upPiece.IsClearable())
-        //                upPiece.ClearablePiece.Clear();
-        //        }
-        //    }
-        //    //if (piece2.X > 0 && piece2.X < xDimension - 1)
-        //    //{
-        //    //    MainPiece leftPiece = pieces[piece2.X - 1, piece2.Y];
-        //    //    MainPiece rightPiece = pieces[piece2.X + 1, piece2.Y];
-        //    //    if (leftPiece.ColorPiece.Color == piece2.ColorPiece.Color && rightPiece.ColorPiece.Color == piece2.ColorPiece.Color)
-        //    //    {
-        //    //        if (leftPiece.IsClearable())
-        //    //            leftPiece.ClearablePiece.Clear();
-        //    //        if (rightPiece.IsClearable())
-        //    //            rightPiece.ClearablePiece.Clear();
-        //    //    }
-        //    //}
-        //    //if (piece2.Y > 0 && piece2.Y < yDimension - 1)
-        //    //{
-        //    //    MainPiece upPiece = pieces[piece2.X, piece2.Y - 1];
-        //    //    MainPiece downPiece = pieces[piece2.X, piece2.Y - 1];
-        //    //    if (upPiece.ColorPiece.Color == piece2.ColorPiece.Color && downPiece.ColorPiece.Color == piece2.ColorPiece.Color)
-        //    //    {
-        //    //        if(upPiece.IsClearable())
-        //    //            upPiece.ClearablePiece.Clear();
-        //    //        if(downPiece.IsClearable())
-        //    //            downPiece.ClearablePiece.Clear();
-        //    //    }
-        //    //}
-
-        //}
+        
 
         public List<List<MainPiece>> FindMatches()
         {
@@ -291,12 +236,14 @@ namespace Shoelace.Board
                         MainPiece piece1 = pieces[x, y];
                         MainPiece piece2 = pieces[x + 1, y];
                         MainPiece piece3 = pieces[x + 2, y];
-
-                        if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color)
-                        {
-                            List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3 };
-                            matches.Add(match);
-                        }
+                        if (piece1.IsColored() && piece2.IsColored() && piece3.IsColored())
+                        { 
+                            if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color)
+                            {
+                                List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3 };
+                                matches.Add(match);
+                            }
+                         }
                     }
 
                     // Check for vertical matches.
@@ -305,11 +252,13 @@ namespace Shoelace.Board
                         MainPiece piece1 = pieces[x, y];
                         MainPiece piece2 = pieces[x, y + 1];
                         MainPiece piece3 = pieces[x, y + 2];
-
-                        if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color)
+                        if (piece1.IsColored() && piece2.IsColored() && piece3.IsColored())
                         {
-                            List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3 };
-                            matches.Add(match);
+                            if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color)
+                            {
+                                List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3 };
+                                matches.Add(match);
+                            }
                         }
                     }
 
@@ -320,11 +269,13 @@ namespace Shoelace.Board
                         MainPiece piece2 = pieces[x + 1, y];
                         MainPiece piece3 = pieces[x, y + 1];
                         MainPiece piece4 = pieces[x + 1, y + 1];
-
-                        if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color && piece3.ColorPiece.Color == piece4.ColorPiece.Color)
+                        if (piece1.IsColored() && piece2.IsColored() && piece3.IsColored() && piece4.IsColored())
                         {
-                            List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3, piece4 };
-                            matches.Add(match);
+                            if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color && piece3.ColorPiece.Color == piece4.ColorPiece.Color)
+                            {
+                                List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3, piece4 };
+                                matches.Add(match);
+                            }
                         }
                     }
 
@@ -335,11 +286,13 @@ namespace Shoelace.Board
                         MainPiece piece2 = pieces[x + 1, y];
                         MainPiece piece3 = pieces[x + 2, y];
                         MainPiece piece4 = pieces[x + 1, y + 1];
-
-                        if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color && piece2.ColorPiece.Color == piece4.ColorPiece.Color)
+                        if (piece1.IsColored() && piece2.IsColored() && piece3.IsColored() && piece4.IsColored())
                         {
-                            List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3, piece4 };
-                            matches.Add(match);
+                            if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color && piece2.ColorPiece.Color == piece4.ColorPiece.Color)
+                            {
+                                List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3, piece4 };
+                                matches.Add(match);
+                            }
                         }
                     }
                 }
@@ -352,7 +305,6 @@ namespace Shoelace.Board
         public List<List<MainPiece>> FindMatches(MainPiece piece1, MainPiece piece2)
         {
             matches.Clear();
-
             // Check the swapped pieces and the pieces next to them.
             CheckPiece(piece1.X, piece1.Y);
             CheckPiece(piece2.X, piece2.Y);
