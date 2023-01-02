@@ -199,28 +199,33 @@ namespace Shoelace.Board
                 pieces[piece2.X, piece1.Y] = piece1;
                 //if (GetMatch(piece1, piece2.X, piece2.Y) != null || GetMatch(piece2, piece1.X, piece1.Y) != null)
                 //{
-                if (FindMatches() != null)
-                {
-                    int piece1X = piece1.X;
-                    int piece1Y = piece1.Y;
+                int piece1X = piece1.X;
+                int piece1Y = piece1.Y;
 
-                    piece1.MovablePiece.Move(piece2.X, piece2.Y, fillTime);
-                    piece2.MovablePiece.Move(piece1X, piece1Y, fillTime);
-                   // FindMatches(piece2,piece1);
-                    //FindMatches();
+                piece1.MovablePiece.Move(piece2.X, piece2.Y, fillTime);
+                piece2.MovablePiece.Move(piece1X, piece1Y, fillTime);
+                if (FindMatches(piece1,piece2) != null)
+                {
+                    Debug.LogError("kuch b");
+                    //int piece1X = piece1.X;
+                    //int piece1Y = piece1.Y;
+
+                    //piece1.MovablePiece.Move(piece2.X, piece2.Y, fillTime);
+                    //piece2.MovablePiece.Move(piece1X, piece1Y, fillTime);
+                  
                      ClearAllValidMatches();
                      StartCoroutine(Fill());    
                   }
                 else
                 {
-                    pieces[piece1.X, piece1.Y] = piece1;
-                    pieces[piece2.X, piece2.Y] = piece2;
+                  StartCoroutine(SwapItBack( piece1, piece2));
+                    //pieces[piece1.X, piece1.Y] = piece1;
+                    //pieces[piece2.X, piece2.Y] = piece2;
                 }
 
             }
            
         }
-        
 
         public List<List<MainPiece>> FindMatches()
         {
@@ -379,11 +384,13 @@ namespace Shoelace.Board
                 MainPiece piece1 = pieces[x, y];
                 MainPiece piece2 = pieces[x + 1, y];
                 MainPiece piece3 = pieces[x + 2, y];
-
-                if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color)
+                if (piece1.IsColored() && piece2.IsColored() && piece3.IsColored())
                 {
-                    List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3 };
-                    matches.Add(match);
+                    if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color)
+                    {
+                        List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3 };
+                        matches.Add(match);
+                    }
                 }
             }
 
@@ -393,11 +400,13 @@ namespace Shoelace.Board
                 MainPiece piece1 = pieces[x, y];
                 MainPiece piece2 = pieces[x, y + 1];
                 MainPiece piece3 = pieces[x, y + 2];
-
-                if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color)
+                if (piece1.IsColored() && piece2.IsColored() && piece3.IsColored())
                 {
-                    List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3 };
-                    matches.Add(match);
+                    if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color)
+                    {
+                        List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3 };
+                        matches.Add(match);
+                    }
                 }
             }
 
@@ -408,11 +417,13 @@ namespace Shoelace.Board
                 MainPiece piece2 = pieces[x + 1, y];
                 MainPiece piece3 = pieces[x, y + 1];
                 MainPiece piece4 = pieces[x + 1, y + 1];
-
-                if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color && piece3.ColorPiece.Color == piece4.ColorPiece.Color)
+                if (piece1.IsColored() && piece2.IsColored() && piece3.IsColored() && piece4.IsColored())
                 {
-                    List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3, piece4 };
-                    matches.Add(match);
+                    if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color && piece3.ColorPiece.Color == piece4.ColorPiece.Color)
+                    {
+                        List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3, piece4 };
+                        matches.Add(match);
+                    }
                 }
             }
 
@@ -423,22 +434,34 @@ namespace Shoelace.Board
                 MainPiece piece2 = pieces[x + 1, y];
                 MainPiece piece3 = pieces[x + 2, y];
                 MainPiece piece4 = pieces[x + 1, y + 1];
-
-                if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color && piece2.ColorPiece.Color == piece4.ColorPiece.Color)
+                if (piece1.IsColored() && piece2.IsColored() && piece3.IsColored() && piece4.IsColored())
                 {
-                    List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3, piece4 };
-                    matches.Add(match);
+                    if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color && piece2.ColorPiece.Color == piece4.ColorPiece.Color)
+                    {
+                        List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3, piece4 };
+                        matches.Add(match);
+                    }
                 }
             }
         }
 
 
-        IEnumerator SwapItBack(MainPiece piece1, MainPiece piece2)
-        {
-            yield return new WaitForSeconds(1.0f);
-            SwapPieces(piece1, piece2);
-            yield break;
-        }
+         IEnumerator SwapItBack(MainPiece piece1, MainPiece piece2)
+            {
+                 yield return new WaitForSeconds(1);
+                pieces[piece1.X, piece1.Y] = piece1;
+                pieces[piece2.X, piece2.Y] = piece2;
+                if (piece1.IsMovable() && piece2.IsMovable())
+                {
+                Debug.LogError("swap it back");
+                int piece1X = piece1.X;
+                int piece1Y = piece1.Y;
+
+                piece1.MovablePiece.Move(piece2.X, piece2.Y, fillTime);
+                piece2.MovablePiece.Move(piece1X, piece1Y, fillTime);
+            }
+                  yield break;
+            }
         public void PressPiece(MainPiece piece)
         {
             pressedPiece = piece;
