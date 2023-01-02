@@ -9,7 +9,8 @@ namespace Shoelace.Board
         public Vector2 GetWworldPositionForPieces(int x, int y);
         public MainPiece SpawnPiece(int x, int y, PieceType type);
         public void SwapPieces(MainPiece piece1, MainPiece piece2);
-        public List<MainPiece> GetMatch(MainPiece piece, int newX, int newY);
+        public List<MainPiece> GetConnectedNeighbors(int x, int y, ColorType color);
+        public void AddItem(List<MainPiece> list, MainPiece item, ColorType color);
         public IEnumerator Fill();
         public bool FillStep();
         public bool IsAdjacent(Piece.MainPiece piece1, Piece.MainPiece piece);

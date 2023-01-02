@@ -6,7 +6,6 @@ namespace Shoelace.Board
 {
     public class BoardGrid : MonoBehaviour,IBoard
     {
-
         public int xDimension;
         public int yDimension;
         public float fillTime;
@@ -20,20 +19,18 @@ namespace Shoelace.Board
         private MainPiece enteredPiece;
 
         // A list of all the matches that have been found on the board.
-        public List<List<MainPiece>> matches;
+      
+        public List<MainPiece> neighborsList;
         // Start is called before the first frame update
         void Start()
         {
             FillThePiecePrefabDictionary();
             MakeAGridBoard();
             PopulateTheGridBoardWithPieces();
-     
-
             StartCoroutine(Fill());
         }
         private void FillThePiecePrefabDictionary()
         {
-            this.matches = new List<List<MainPiece>>();
             pieceDict = new Dictionary<PieceType, GameObject>();
             for (int i = 0; i < piecePrefabs.Length; i++)
             {
@@ -67,14 +64,13 @@ namespace Shoelace.Board
         }
         public Vector2 GetWworldPositionForPieces(int x, int y)
         {
-            //return new Vector2(transform.position.x - xDimension/2.0f + x, transform.position.y - yDimension / 2.0f + y);
+           // return new Vector2(transform.position.x - xDimension/2.0f + x, transform.position.y - yDimension / 2.0f + y);
             return new Vector2(transform.position.x + xDimension / 2.0f - x, transform.position.y + yDimension / 2.0f - y);
         }
         public MainPiece SpawnPiece(int x, int y, PieceType type)
         {
             GameObject newPiece = (GameObject)Instantiate(pieceDict[type], GetWworldPositionForPieces(x, y), Quaternion.identity);
             newPiece.transform.parent = transform;
-            newPiece.name = type.ToString() + "(" + x + "," + y + ")";
             pieces[x, y] = newPiece.GetComponent<MainPiece>();
             pieces[x, y].Init(x, y, this, type);
             return pieces[x, y];
@@ -197,278 +193,50 @@ namespace Shoelace.Board
             {
                 pieces[piece1.X, piece2.Y] = piece2;
                 pieces[piece2.X, piece1.Y] = piece1;
-                //if (GetMatch(piece1, piece2.X, piece2.Y) != null || GetMatch(piece2, piece1.X, piece1.Y) != null)
-                //{
+            
                 int piece1X = piece1.X;
                 int piece1Y = piece1.Y;
 
                 piece1.MovablePiece.Move(piece2.X, piece2.Y, fillTime);
                 piece2.MovablePiece.Move(piece1X, piece1Y, fillTime);
-                if (FindMatches(piece1,piece2) != null)
+                if (ConductSearch(piece1) != null)
                 {
-                    Debug.LogError("kuch b");
-                    //int piece1X = piece1.X;
-                    //int piece1Y = piece1.Y;
-
-                    //piece1.MovablePiece.Move(piece2.X, piece2.Y, fillTime);
-                    //piece2.MovablePiece.Move(piece1X, piece1Y, fillTime);
-                  
                      ClearAllValidMatches();
                      StartCoroutine(Fill());    
                   }
                 else
                 {
                   StartCoroutine(SwapItBack( piece1, piece2));
-                    //pieces[piece1.X, piece1.Y] = piece1;
-                    //pieces[piece2.X, piece2.Y] = piece2;
+               
                 }
 
             }
            
         }
-
-        public List<List<MainPiece>> FindMatches()
+        IEnumerator SwapItBack(MainPiece piece1, MainPiece piece2)
         {
-            matches.Clear();
-
-            for (int x = 0; x < xDimension; x++)
-            {
-                for (int y = 0; y < yDimension; y++)
-                {
-                    // Check for horizontal matches.
-                    if (x < xDimension - 2)
-                    {
-                        MainPiece piece1 = pieces[x, y];
-                        MainPiece piece2 = pieces[x + 1, y];
-                        MainPiece piece3 = pieces[x + 2, y];
-                        if (piece1.IsColored() && piece2.IsColored() && piece3.IsColored())
-                        { 
-                            if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color)
-                            {
-                                List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3 };
-                                matches.Add(match);
-                            }
-                         }
-                    }
-
-                    // Check for vertical matches.
-                    if (y < yDimension - 2)
-                    {
-                        MainPiece piece1 = pieces[x, y];
-                        MainPiece piece2 = pieces[x, y + 1];
-                        MainPiece piece3 = pieces[x, y + 2];
-                        if (piece1.IsColored() && piece2.IsColored() && piece3.IsColored())
-                        {
-                            if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color)
-                            {
-                                List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3 };
-                                matches.Add(match);
-                            }
-                        }
-                    }
-
-                    // Check for L-shaped matches.
-                    if (x < xDimension - 1 && y < yDimension - 1)
-                    {
-                        MainPiece piece1 = pieces[x, y];
-                        MainPiece piece2 = pieces[x + 1, y];
-                        MainPiece piece3 = pieces[x, y + 1];
-                        MainPiece piece4 = pieces[x + 1, y + 1];
-                        if (piece1.IsColored() && piece2.IsColored() && piece3.IsColored() && piece4.IsColored())
-                        {
-                            if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color && piece3.ColorPiece.Color == piece4.ColorPiece.Color)
-                            {
-                                List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3, piece4 };
-                                matches.Add(match);
-                            }
-                        }
-                    }
-
-                    // Check for T-shaped matches.
-                    if (x < xDimension - 2 && y < yDimension - 1)
-                    {
-                        MainPiece piece1 = pieces[x, y];
-                        MainPiece piece2 = pieces[x + 1, y];
-                        MainPiece piece3 = pieces[x + 2, y];
-                        MainPiece piece4 = pieces[x + 1, y + 1];
-                        if (piece1.IsColored() && piece2.IsColored() && piece3.IsColored() && piece4.IsColored())
-                        {
-                            if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color && piece2.ColorPiece.Color == piece4.ColorPiece.Color)
-                            {
-                                List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3, piece4 };
-                                matches.Add(match);
-                            }
-                        }
-                    }
-                }
-            }
-            if(matches.Count>0)
-                return matches;
-            return null;
-        }
-
-        public List<List<MainPiece>> FindMatches(MainPiece piece1, MainPiece piece2)
-        {
-            matches.Clear();
-            // Check the swapped pieces and the pieces next to them.
-            CheckPiece(piece1.X, piece1.Y);
-            CheckPiece(piece2.X, piece2.Y);
-            if (piece1.X == piece2.X)
-            {
-                if (piece1.Y > 0)
-                {
-                    CheckPiece(piece1.X, piece1.Y - 1);
-                }
-                if (piece1.Y < xDimension - 1)
-                {
-                    CheckPiece(piece1.X, piece1.Y + 1);
-                }
-            }
-            else if (piece1.Y == piece2.Y)
-            {
-                if (piece1.X > 0)
-                {
-                    CheckPiece(piece1.X - 1, piece1.Y);
-                }
-                if (piece1.X < xDimension - 1)
-                {
-                    CheckPiece(piece1.X + 1, piece1.Y);
-                }
-            }
-
-            // Check for L-shaped and T-shaped matches that include the swapped pieces.
-            if (piece1.X > 0 && piece1.Y > 0)
-            {
-                CheckPiece(piece1.X - 1, piece1.Y - 1);
-            }
-            if (piece1.X > 0 && piece1.Y < yDimension - 1)
-            {
-                CheckPiece(piece1.X - 1, piece1.Y + 1);
-            }
-            if (piece1.X < xDimension - 1 && piece1.Y > 0)
-            {
-                CheckPiece(piece1.X + 1, piece1.Y - 1);
-            }
-            if (piece1.X < xDimension - 1 && piece1.Y < yDimension - 1)
-            {
-                CheckPiece(piece1.X + 1, piece1.Y + 1);
-            }
-
-            // Check the pieces next to the swapped pieces.
-            if (piece1.X > 0)
-            {
-                CheckPiece(piece1.X - 1, piece1.Y);
-            }
-            if (piece1.X < xDimension - 1)
-            {
-                CheckPiece(piece1.X + 1, piece1.Y);
-            }
-            if (piece1.Y > 0)
-            {
-                CheckPiece(piece1.X, piece1.Y - 1);
-            }
-            if (piece1.Y < yDimension - 1)
-            {
-                CheckPiece(piece1.X, piece1.Y + 1);
-            }
-            if (matches.Count > 0)
-                return matches;
-            return null;
-        }
-
-        private void CheckPiece(int x, int y)
-        {
-            // Check for horizontal matches.
-            if (x < xDimension - 2)
-            {
-                MainPiece piece1 = pieces[x, y];
-                MainPiece piece2 = pieces[x + 1, y];
-                MainPiece piece3 = pieces[x + 2, y];
-                if (piece1.IsColored() && piece2.IsColored() && piece3.IsColored())
-                {
-                    if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color)
-                    {
-                        List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3 };
-                        matches.Add(match);
-                    }
-                }
-            }
-
-            // Check for vertical matches.
-            if (y < yDimension - 2)
-            {
-                MainPiece piece1 = pieces[x, y];
-                MainPiece piece2 = pieces[x, y + 1];
-                MainPiece piece3 = pieces[x, y + 2];
-                if (piece1.IsColored() && piece2.IsColored() && piece3.IsColored())
-                {
-                    if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color)
-                    {
-                        List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3 };
-                        matches.Add(match);
-                    }
-                }
-            }
-
-            // Check for L-shaped matches.
-            if (x < xDimension - 1 && y < yDimension - 1)
-            {
-                MainPiece piece1 = pieces[x, y];
-                MainPiece piece2 = pieces[x + 1, y];
-                MainPiece piece3 = pieces[x, y + 1];
-                MainPiece piece4 = pieces[x + 1, y + 1];
-                if (piece1.IsColored() && piece2.IsColored() && piece3.IsColored() && piece4.IsColored())
-                {
-                    if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color && piece3.ColorPiece.Color == piece4.ColorPiece.Color)
-                    {
-                        List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3, piece4 };
-                        matches.Add(match);
-                    }
-                }
-            }
-
-            // Check for T-shaped matches.
-            if (x < xDimension - 2 && y < yDimension - 1)
-            {
-                MainPiece piece1 = pieces[x, y];
-                MainPiece piece2 = pieces[x + 1, y];
-                MainPiece piece3 = pieces[x + 2, y];
-                MainPiece piece4 = pieces[x + 1, y + 1];
-                if (piece1.IsColored() && piece2.IsColored() && piece3.IsColored() && piece4.IsColored())
-                {
-                    if (piece1.ColorPiece.Color == piece2.ColorPiece.Color && piece2.ColorPiece.Color == piece3.ColorPiece.Color && piece2.ColorPiece.Color == piece4.ColorPiece.Color)
-                    {
-                        List<MainPiece> match = new List<MainPiece> { piece1, piece2, piece3, piece4 };
-                        matches.Add(match);
-                    }
-                }
-            }
-        }
-
-
-         IEnumerator SwapItBack(MainPiece piece1, MainPiece piece2)
-            {
-                 yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(0.5f); // time can be adjusted later this is just for test
                 pieces[piece1.X, piece1.Y] = piece1;
                 pieces[piece2.X, piece2.Y] = piece2;
                 if (piece1.IsMovable() && piece2.IsMovable())
                 {
-                Debug.LogError("swap it back");
-                int piece1X = piece1.X;
-                int piece1Y = piece1.Y;
-
-                piece1.MovablePiece.Move(piece2.X, piece2.Y, fillTime);
-                piece2.MovablePiece.Move(piece1X, piece1Y, fillTime);
-            }
-                  yield break;
-            }
+                     int piece1X = piece1.X;
+                     int piece1Y = piece1.Y;
+                     piece1.MovablePiece.Move(piece2.X, piece2.Y, fillTime);
+                     piece2.MovablePiece.Move(piece1X, piece1Y, fillTime);
+                }
+                yield break;
+        }
         public void PressPiece(MainPiece piece)
         {
+            Debug.Log(piece.X+", "+piece.Y);
+        //    ConductSearch(enteredPiece);
             pressedPiece = piece;
         }
         public void EnterPiece(MainPiece piece)
         {
-            enteredPiece = piece; 
+            enteredPiece = piece;
+            
         }
         public void ReleasePiece()
         {
@@ -477,214 +245,21 @@ namespace Shoelace.Board
                 SwapPieces(pressedPiece, enteredPiece);
             }
         }
-        public List<MainPiece> GetMatch(MainPiece piece, int newX, int newY)
-        {
-            if(piece.IsColored())
-            {
-                ColorType colorType = piece.ColorPiece.Color;
-                List<MainPiece> horizontalPieces = new List<MainPiece>();
-                List<MainPiece> verticalPieces = new List<MainPiece>();
-                List<MainPiece> matchPieces = new List<MainPiece>();
-
-                // We will first check horizontally
-                horizontalPieces.Add(piece);
-                for (int dir = 0; dir <= 1; dir++)
-                {
-                    for (int xOffset = 1; xOffset < xDimension; xOffset++)
-                    {
-                        int x;
-                        if(dir == 0) // left side
-                        {
-                            x = newX - xOffset;
-                        }
-                        else // right side
-                        {
-                            x = newX + xOffset;
-                        }
-                        if(x < 0 || x >= xDimension)
-                        {
-                            break;
-                        }
-                        if(pieces[x, newY].IsColored() && pieces[x, newY].ColorPiece.Color == colorType)
-                        {
-                            horizontalPieces.Add(pieces[x, newY]);
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                }
-                if(horizontalPieces.Count >= 3)
-                {
-                    for (int i = 0; i < horizontalPieces.Count; i++)
-                    {
-                        matchPieces.Add(horizontalPieces[i]);
-                    }
-                }
-                // traverse vertically if we found L or T shape
-                if(horizontalPieces.Count>=3)
-                {
-                    for (int i = 0; i < horizontalPieces.Count; i++)
-                    {
-                        for (int dir = 0; dir <= 1; dir++)
-                        {
-                            for (int yOffset = 1; yOffset < yDimension; yOffset++)
-                            {
-                                int y;
-                                if (dir == 0) // upward
-                                {
-                                    y = newY - yOffset;
-                                }
-                                else // downward
-                                {
-                                    y = newY + yOffset;
-                                }
-                                if (y < 0 || y >= yDimension)
-                                {
-                                    break;
-                                }
-                                if (pieces[horizontalPieces[i].X,y].IsColored() && pieces[horizontalPieces[i].X, y].ColorPiece.Color == colorType)
-                                {
-                                    verticalPieces.Add(pieces[horizontalPieces[i].X, y]);
-                                }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                        if(verticalPieces.Count<2)
-                        {
-                            verticalPieces.Clear();
-                        }
-                        else
-                        {
-                            for (int j = 0; j < verticalPieces.Count; j++)
-                            {
-                                matchPieces.Add(verticalPieces[j]);
-                            }
-                            break;
-                        }
-                    }
-                }
-
-                if(matchPieces.Count >= 3)
-                {
-                    return matchPieces;
-                }
-                horizontalPieces.Clear();
-                verticalPieces.Clear();
-                // Now we will first check vertically
-                verticalPieces.Add(piece);
-                for (int dir = 0; dir <= 1; dir++)
-                {
-                    for (int yOffset = 1; yOffset < yDimension; yOffset++)
-                    {
-                        int y;
-                        if (dir == 0) // Upward
-                        {
-                            y = newY - yOffset;
-                        }
-                        else  // downward 
-                        {
-                            y = newY + yOffset;
-                        }
-                        if (y < 0 || y >= yDimension)
-                        {
-                            break;
-                        }
-                        if (pieces[newX, y].IsColored() && pieces[newX, y].ColorPiece.Color == colorType)
-                        {
-                            verticalPieces.Add(pieces[newX, y]);
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                }
-
-                if (verticalPieces.Count >= 3)
-                {
-                    for (int i = 0; i < verticalPieces.Count; i++)
-                    {
-                        matchPieces.Add(verticalPieces[i]);
-                    }
-                }
-
-                // traverse horizontally if we found L or T shape
-                if (verticalPieces.Count >= 3)
-                {
-                    for (int i = 0; i < verticalPieces.Count; i++)
-                    {
-                        for (int dir = 0; dir <= 1; dir++)
-                        {
-                            for (int xOffset = 1; xOffset < xDimension; xOffset++)
-                            {
-                                int x;
-                                if (dir == 0) // left
-                                {
-                                    x = newX - xOffset;
-                                }
-                                else // right
-                                {
-                                    x = newY + xOffset;
-                                }
-                                if (x < 0 || x >= xDimension)
-                                {
-                                    break;
-                                }
-                                if (pieces[x, verticalPieces[i].Y].IsColored() && pieces[x, verticalPieces[i].Y].ColorPiece.Color == colorType)
-                                {
-                                    verticalPieces.Add(pieces[x, verticalPieces[i].Y]);
-                                }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                        if (horizontalPieces.Count < 2)
-                        {
-                            horizontalPieces.Clear();
-                        }
-                        else
-                        {
-                            for (int j = 0; j < horizontalPieces.Count; j++)
-                            {
-                                matchPieces.Add(horizontalPieces[j]);
-                            }
-                            break;
-                        }
-                    }
-                }
-                //
-                if (matchPieces.Count >= 3)
-                {
-                    return matchPieces;
-                }
-
-            }
-            return null;
-        }
+      
         public bool ClearAllValidMatches()
         {
             bool needsRefill = false;
-            for (int i = 0; i < matches.Count; i++)
-            {
-                List<MainPiece> match = matches[i];
+        
+                List<MainPiece> match = neighborsList;
                 if (match != null)
                 {
                     for (int j = 0; j < match.Count; j++)
                     {
-                        Debug.Log(match[j].ColorPiece.Color);
                        if(ClearPiece(match,match[j].X, match[j].Y))
                         {
                             needsRefill = true;
                         }  
                     }
-                }
             }
            
             return needsRefill;
@@ -701,7 +276,76 @@ namespace Shoelace.Board
             return false;
 
         }
-
+        public List<MainPiece> ConductSearch(MainPiece piece)
+        {
+            neighborsList.Clear();
+            if (GetConnectedNeighbors(piece.X, piece.Y, piece.ColorPiece.Color)!=null)
+            {
+                for (int i = 0; i < neighborsList.Count; i++)
+                {
+                    GetConnectedNeighbors(neighborsList[i].X, neighborsList[i].Y, neighborsList[i].ColorPiece.Color);
+                }
+            }
+            if (neighborsList.Count > 2)
+                return neighborsList;
+            
+            return null;
+        }
+        
+        public List<MainPiece> GetConnectedNeighbors(int x, int y, ColorType color)
+        {
+            AddItem(neighborsList,pieces[x,y],color);
+            if( x == 0 && y == 0)
+            {
+                AddItem(neighborsList, (pieces[x+1,y]),color);
+                AddItem(neighborsList, (pieces[x, y+1]), color);
+            }
+            else if(x > 0 && y == 0)
+            {
+                if(x < xDimension-1)
+                {
+                    AddItem(neighborsList, (pieces[x+1,y]), color);
+                }
+                AddItem(neighborsList, (pieces[x-1,y]), color);
+                AddItem(neighborsList, (pieces[x, y+1]), color);
+            }
+            else if(x == 0 && y>0)
+            {
+                AddItem(neighborsList, (pieces[x, y - 1]), color);
+                AddItem(neighborsList, (pieces[x + 1, y]), color);
+                if(y < yDimension - 1)
+                {
+                    AddItem(neighborsList, (pieces[x, y + 1]), color);
+                }
+            }
+            else if(x > 0 && y > 0)
+            {
+                AddItem(neighborsList, (pieces[x, y - 1]), color);
+                if (x < xDimension - 1)
+                {
+                    AddItem(neighborsList, (pieces[x + 1, y]), color);
+                }
+                AddItem(neighborsList, (pieces[x - 1, y]), color);
+                if (y < yDimension - 1)
+                {
+                    AddItem(neighborsList, (pieces[x, y + 1]), color);
+                }
+            }
+              
+            return neighborsList;
+           
+        }
+        public void AddItem(List<MainPiece> list, MainPiece item,ColorType color)
+        {
+            if (item.IsColored())
+            {
+                if (!list.Contains(item) && item.ColorPiece.Color == color)
+                {
+                    list.Add(item);
+                }
+            }
+        }
     }
+  
     
 }
