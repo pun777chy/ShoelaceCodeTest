@@ -24,6 +24,7 @@ namespace Shoelace.Board
         // Start is called before the first frame update
         void Start()
         {
+           
             FillThePiecePrefabDictionary();
             MakeAGridBoard();
             PopulateTheGridBoardWithPieces();
@@ -164,6 +165,7 @@ namespace Shoelace.Board
                     }
                 }
             }
+            ColorType examplePieceColor = ColorType.Blue;
             for (int i = 0; i < xDimension; i++)
             {
                 MainPiece pieceBelow = pieces[i, 0];
@@ -177,11 +179,18 @@ namespace Shoelace.Board
                     pieces[i, 0].Init(i, -1, this, PieceType.Normal);
                     pieces[i, 0].MovablePiece.Move(i, 0,fillTime);
                     pieces[i, 0].ColorPiece.SetColor((ColorType)Random.Range(0, (int)ColorType.Count));
+                    while(examplePieceColor == pieces[i, 0].ColorPiece.Color)
+                    {
+                        pieces[i, 0].ColorPiece.SetColor((ColorType)Random.Range(0, (int)ColorType.Count));
+                    }
+                    examplePieceColor = pieces[i, 0].ColorPiece.Color;
                     movedPiece = true;
                 }
             }
             return movedPiece;
         }
+       
+
         public bool IsAdjacent(MainPiece piece1, MainPiece piece2)
         {
             return (piece1.X == piece2.X && (int)Mathf.Abs(piece1.Y - piece2.Y) == 1)
